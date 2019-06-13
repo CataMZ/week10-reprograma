@@ -5,6 +5,7 @@ const ComidasSchema = new Schema({
     _id: {type: mongoose.Schema.Types.ObjectId, auto: true},
     nome: {type: String, required: true},
     descricao: {type: String}, // opcional
+    imagem: {type: String},
     valor: {type: Number} // opcional
 })
 

@@ -8,7 +8,6 @@ servidor.use(cors())
 servidor.use(bodyParser.json())
 
 servidor.get('/comidas', async (request, response) => {
-  // response.send(controller.getAll())
   controller.getAll()
     .then(comidas => response.send(comidas))
 })
@@ -19,6 +18,20 @@ servidor.get('/comidas/:id', async (request, response) => {
   const id = request.params.id
   controller.getById(id)
     .then(comida => response.send(comida))
+    // .then(comida => {
+    //   if(!comida){ // comida === null || comida === undefined
+    //     response.sendStatus(404) // comida nao encontrada
+    //   } else {
+    //     response.send(comida)
+    //   }
+    // })
+    // .catch(error => {
+    //   if(error.name === "CastError"){
+    //     response.sendStatus(400) // bad request - tem algum parametro errado
+    //   } else {
+    //     response.sendStatus(500) // deu ruim e n sabemos o que foi
+    //   }
+    // })
 })
 
 servidor.post('/comidas', (request, response) => {
@@ -26,16 +39,22 @@ servidor.post('/comidas', (request, response) => {
   response.status(200).send(controller.add(request.body))
 })
 
-servidor.patch('/comidas/:id', async (request, response) => {
+servidor.patch('/comidas/:id', (request, response) => {
   const id = request.params.id
-  // const sucesso = controller.update(id, request.body)
-  // if(sucesso){
-  //   response.sendStatus(204)
-  // } else {
-  //   response.sendStatus(404)
-  // }
   controller.update(id, request.body)
-    .then(response.sendStatus(204))
+    .then(comida => {
+      if(!comida) { response.sendStatus(404) // nao encontrei a comida
+      } else {
+        response.sendStatus(comida) // o status default 200
+      }
+    })
+    .catch(error => {
+      if(error.name === "MongoError" || error.name === "CastError"){
+        response.sendStatus(400) // bad request
+      } else {
+        response.sendStatus(500)
+      }
+    })
 })
 
 servidor.delete('/comidas/:id', async (request, response) => {
